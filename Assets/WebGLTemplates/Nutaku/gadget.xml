@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<ModulePrefs title="Wet n Wild Racing" author="Timba Games" thumbnail="" screenshot="" height="1280" width = "720px">
+		<Require feature="dynamic-height"/>
+	    <Require feature="opensocial-0.8"/>
+	    <Require feature="opensocial-payment"/>
+	    <Require feature="nutaku"/>
+	</ModulePrefs>
+	<Content preferred_width="1920" type="html" view="canvas">
+		<![CDATA[
+			<script src="http://www.wetnwildracing.com/test/guestplay/Build/UnityLoader.js"></script>
+			<script type="text/javascript" src="https://sbox-cross-promotion.nutaku.net/lib/crosspromo-sbox.js" onload="crossPromo.init('0SmmyxLrgwQ7uiQ')"></script>
+			<script type="text/javascript">
+				var gameInstance;
+				function init() {
+					gameInstance = UnityLoader.instantiate("gameContainer",
+					"http://www.wetnwildracing.com/test/guestplay/Build/WebGL.json", {onProgress:
+					UnityProgress});
+				}
+				gadgets.util.registerOnLoadHandler(init);
+				gadgets.window.adjustHeight(720);
+
+				 function UnityProgress(gameInstance, progress) {
+				  if (!gameInstance.Module)
+				    return;
+				  if (!gameInstance.logo) {
+				    gameInstance.logo = document.createElement("div");
+				    gameInstance.logo.className = "logo " + gameInstance.Module.splashScreenStyle;
+				    gameInstance.container.appendChild(gameInstance.logo);
+				  }
+				  if (!gameInstance.progress) {    
+				    gameInstance.progress = document.createElement("div");
+				    gameInstance.progress.className = "progress " + gameInstance.Module.splashScreenStyle;
+				    gameInstance.progress.empty = document.createElement("div");
+				    gameInstance.progress.empty.className = "empty";
+				    gameInstance.progress.appendChild(gameInstance.progress.empty);
+				    gameInstance.progress.full = document.createElement("div");
+				    gameInstance.progress.full.className = "full";
+				    gameInstance.progress.appendChild(gameInstance.progress.full);
+				    gameInstance.container.appendChild(gameInstance.progress);
+				  }
+				  gameInstance.progress.full.style.width = (100 * progress) + "%";
+				  gameInstance.progress.empty.style.width = (100 * (1 - progress)) + "%";
+				  if (progress == 1)
+				    gameInstance.logo.style.display = gameInstance.progress.style.display = "none";
+				}
+				
+
+			    function PrintResult(data)
+			    {
+			    	console.log("data: "+data);
+			    }
+
+			    function OpenGuestForm()
+			    {
+			    	var params = {};
+					params[nutaku.GuestRequestFields.VERSION] = 1;
+
+				    var newGuestSignUpResult = opensocial.newGuestSignUp(params);
+				    opensocial.requestGuestSignUp(newGuestSignUpResult, function(response) {
+					    // Callback processing is performed once the user action on the signup modal is completed.   
+					    // However, if the user selects "Sign Up", the user will be directed to the signup page, thus the callback processing is not executed.
+					    if (!response.hadError()) {
+					        var responseCode = newGuestSignUpResult.getField(nutaku.Guest.Field.RESPONSE_CODE);
+					        console.log("responseCode:"+responseCode);
+					    }
+					    else {
+					    //error handling
+					    console.log("OpenGuestForm Error:"+JSON.stringify(response));
+					    }
+					});
+			    }
+
+			    function GetUserInformation(action)
+			    {
+				    var params = {};
+					params[opensocial.DataRequest.PeopleRequestFields.PROFILE_DETAILS] = [nutaku.Person.Field.GRADE];
+					var req = opensocial.newDataRequest();
+					req.add(req.newFetchPersonRequest(opensocial.IdSpec.PersonId.VIEWER, params), "viewer");
+					req.send(function(response) {
+					    if (response.hadError()) {
+					        console.log("GetUserInformation Error:"+JSON.stringify(response));
+					        if(action){
+					           CallBack(action,{"Type":"Error"});
+					         }
+					    } else {
+					        var item = response.get("viewer");
+					        if (item.hadError()) {
+					            console.log("GetUserInformation Error:"+JSON.stringify(response));
+					            if(action){
+					            	CallBack(action,{"Type":"Error"});
+					            }
+					        } else {
+					            var viewer = item.getData();
+					            CallBack(action,{"Type":"Success","GRADE":viewer.getField(nutaku.Person.Field.GRADE)});
+					        }
+					    }
+					});
+			    }
+
+			    function GetUserInformationCallBackTest(args)
+			    {
+			    	console.log("Result: "+JSON.stringify(args));
+			    }
+			   // GetUserInformation(GetUserInformationCallBackTest);
+			</script>
+			<body style="min-height: 1280px">
+			<div class="main" id="main" style="margin: 0 auto; width: 1280px;">
+			<div class="mainLeft"></div>
+			<div class="mainRight"></div>
+			<div class="webgl-content" id="webglcontent" style="min-height:
+			1080px">
+			<div id="gameContainer" style="width: 1280px; height: 720px;
+			box-shadow: 0px 0px 25px #000000;"></div>
+			<div id="LogoBG" class="Logos LogoBG"></div>
+			<div id="LogoA" class="Logos LogoA"></div>
+			<div id="LogoB" class="Logos LogoB"></div>
+			</div>
+			<div id="Footer" class="Footer"
+			onclick="gameInstance.SetFullscreen(1)"></div>
+			</div>
+			</body>
+			
+		]]>
+	</Content>
+</Module>
