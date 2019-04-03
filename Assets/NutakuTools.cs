@@ -2,18 +2,28 @@
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NutakuTools : MonoBehaviour {
 
+#if UNITY_WEBGL
     [DllImport("__Internal")]
     private static extern void CheckGuestPlayer (Action<string> action);
     [DllImport("__Internal")]
     private static extern void OpenGuestPlayerFrom ();
     [DllImport("__Internal")]
     private static extern void OpenCrossPromotion ();
+#endif
 
     private static Action<string> m_action;
     private static Action<string> m_actionError;
+
+    public Text m_SuportToolText;
+
+    private void Start ()
+    {
+        OnSuportToolsState(0);
+    }
 
     /// <summary>
     /// Check the player nutaku grade
@@ -24,7 +34,9 @@ public class NutakuTools : MonoBehaviour {
     {
         m_action += action;
         m_actionError += actionError;
+        #if UNITY_WEBGL
         CheckGuestPlayer(Callback);
+        #endif
     }
 
     /// <summary>
@@ -32,15 +44,18 @@ public class NutakuTools : MonoBehaviour {
     /// </summary>
     public void OnOpenGuestPlayerFrom ()
     {
-
+#if UNITY_WEBGL
         OpenGuestPlayerFrom();
+#endif
     }
     /// <summary>
     /// Open Cross promotion banner
     /// </summary>
     public void OnOpenCrossPromotion()
     {
+#if UNITY_WEBGL
         OpenCrossPromotion();
+#endif
     }
 
     #region test
@@ -58,7 +73,7 @@ public class NutakuTools : MonoBehaviour {
     {
         Debug.Log("OnTestResultError: " + result);
     }
-    #endregion
+#endregion
 
     [MonoPInvokeCallback(typeof(Action<string>))]
     private static void Callback (string arg)
@@ -81,6 +96,11 @@ public class NutakuTools : MonoBehaviour {
         }
         m_actionError = null;
         m_action =null;
+    }
+
+    public void OnSuportToolsState(int active)
+    {
+        m_SuportToolText.text = string.Format("SuportTool state: {0}", active);
     }
 }
 [System.Serializable]

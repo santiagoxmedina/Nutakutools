@@ -8,15 +8,23 @@
 	</ModulePrefs>
 	<Content preferred_width="1920" type="html" view="canvas">
 		<![CDATA[
-			<script src="http://www.wetnwildracing.com/test/guestplay/Build/UnityLoader.js"></script>
+			<script src="http://www.wetnwildracing.com/test/nutakutools/Build/UnityLoader.js"></script>
 			<script type="text/javascript" src="https://sbox-cross-promotion.nutaku.net/lib/crosspromo-sbox.js" onload="crossPromo.init('0SmmyxLrgwQ7uiQ')"></script>
+			<script src="https://code.jquery.com/jquery-3.3.1.min.js" ntegrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+			<script src="https://cdn-publishing.nutaku.net/support_tool/js/supportTool.js"></script>
 			<script type="text/javascript">
 				var gameInstance;
 				function init() {
 					gameInstance = UnityLoader.instantiate("gameContainer",
-					"http://www.wetnwildracing.com/test/guestplay/Build/WebGL.json", {onProgress:
+					"http://www.wetnwildracing.com/test/nutakutools/Build/WebGL.json", {onProgress:
 					UnityProgress});
 				}
+				function OnSuportToolOpen(){
+					if(gameInstance){
+						gameInstance.SendMessage("NutakuTools","OnSuportToolsState",1);
+					}
+				}
+
 				gadgets.util.registerOnLoadHandler(init);
 				gadgets.window.adjustHeight(720);
 
@@ -105,20 +113,27 @@
 			   // GetUserInformation(GetUserInformationCallBackTest);
 			</script>
 			<body style="min-height: 1280px">
-			<div class="main" id="main" style="margin: 0 auto; width: 1280px;">
-			<div class="mainLeft"></div>
-			<div class="mainRight"></div>
-			<div class="webgl-content" id="webglcontent" style="min-height:
-			1080px">
-			<div id="gameContainer" style="width: 1280px; height: 720px;
-			box-shadow: 0px 0px 25px #000000;"></div>
-			<div id="LogoBG" class="Logos LogoBG"></div>
-			<div id="LogoA" class="Logos LogoA"></div>
-			<div id="LogoB" class="Logos LogoB"></div>
-			</div>
-			<div id="Footer" class="Footer"
-			onclick="gameInstance.SetFullscreen(1)"></div>
-			</div>
+				<div style="width:1280px; margin: 14px auto 0 auto; position: relative;">
+				    <!-- support tool btton-->
+				    <a id="SupportButton" style="position: absolute; left: 100%;" onclick="Support.ModalInbox(); OnSuportToolOpen();">
+						<img class="logoPic" width="118px" src="https://cdn-publishing.nutaku.net/support_tool/media/logo_cst_400x400_1.png" />
+					</a>
+				</div>
+				<div class="main" id="main" style="margin: 0 auto; width: 1280px;">
+				<div class="mainLeft"></div>
+				<div class="mainRight"></div>
+				<div class="webgl-content" id="webglcontent" style="min-height:
+				1080px">
+				<div id="gameContainer" style="width: 1280px; height: 720px;
+				box-shadow: 0px 0px 25px #000000;"></div>
+				<div id="LogoBG" class="Logos LogoBG"></div>
+				<div id="LogoA" class="Logos LogoA"></div>
+				<div id="LogoB" class="Logos LogoB"></div>
+				</div>
+				<div id="Footer" class="Footer"
+				onclick="gameInstance.SetFullscreen(1)"></div>
+				</div>
+				
 			</body>
 			
 		]]>
