@@ -17,8 +17,9 @@ public class NutakuTools : MonoBehaviour {
 
     private static Action<string> m_action;
     private static Action<string> m_actionError;
-
-    public Text m_SuportToolText;
+    public Action<int> onSuportToolStateChange;
+    public const int SUPPORT_TOOL_OPEN = 1;
+    //public Text m_SuportToolText;
 
     private void Start ()
     {
@@ -100,7 +101,12 @@ public class NutakuTools : MonoBehaviour {
 
     public void OnSuportToolsState(int active)
     {
-        m_SuportToolText.text = string.Format("SuportTool state: {0}", active);
+        //m_SuportToolText.text = string.Format("SuportTool state: {0}", active);
+        Debug.LogFormat("SuportTool state: {0}", active);
+        if (onSuportToolStateChange != null)
+        {
+            onSuportToolStateChange(active);
+        }
     }
 }
 [System.Serializable]
