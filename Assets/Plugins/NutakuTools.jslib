@@ -1,4 +1,3 @@
-
 var LibraryJsCallCsTest = {
 	  	$JsCallCsTest: {},
 	  	CheckGuestPlayer: function (action) {
@@ -30,7 +29,6 @@ var LibraryJsCallCsTest = {
 				Runtime.dynCall('vi', JsCallCsTest.callback, [buffer]);
 				});
 	  	},
-
 	  	OpenGuestPlayerFrom: function () {
 	    	var params = {};
 			params[nutaku.GuestRequestFields.VERSION] = 1;
@@ -51,9 +49,20 @@ var LibraryJsCallCsTest = {
 			    
 	  	},
 	  	OpenCrossPromotion: function () {
-	    	crossPromo.showBannerModal(console.log);
+	  		console.log("OpenCrossPromotion");
+	    	crossPromo.showBannerModal(function(response){
+	    		console.log("OnOpenCrossPromotionComplete: "+response);
+			    SendMessage("NutakuTools","OnOpenCrossPromotionComplete");
+	    	});
 	  	},
-
+	  	CrossPromotionTaskArchieve: function(){
+	  		GadgetCrossPromotionTaskArchieve();
+	  	},
+	  	CrossPromotionTaskConfirm: function(){
+	  		GadgetCrossPromotionTaskConfirm();
+	  	},OnNutakuToolStart: function(){
+	  		ongamestart();
+	  	}
 };
 autoAddDeps(LibraryJsCallCsTest, '$JsCallCsTest');
 mergeInto(LibraryManager.library, LibraryJsCallCsTest);

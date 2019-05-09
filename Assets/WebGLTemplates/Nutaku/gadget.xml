@@ -9,7 +9,7 @@
 	<Content preferred_width="1920" type="html" view="canvas">
 		<![CDATA[
 			<script src="http://www.wetnwildracing.com/test/nutakutools/Build/UnityLoader.js"></script>
-			<script type="text/javascript" src="https://sbox-cross-promotion.nutaku.net/lib/crosspromo-sbox.js" onload="crossPromo.init('0SmmyxLrgwQ7uiQ')"></script>
+			<script type="text/javascript" src="https://sbox-cross-promotion.nutaku.net/lib/crosspromo-sbox.js" ></script>
 			<script src="https://code.jquery.com/jquery-3.3.1.min.js" ntegrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 			<script src="https://cdn-publishing.nutaku.net/support_tool/js/supportTool.js"></script>
 			<script type="text/javascript">
@@ -52,11 +52,31 @@
 				  if (progress == 1)
 				    gameInstance.logo.style.display = gameInstance.progress.style.display = "none";
 				}
+
+
 				
+				function ongamestart(){
+					console.log("oncrosspromorecord: 8EPvPPz1VSaZ_Xp");
+					crossPromo.init('8EPvPPz1VSaZ_Xp');
+					crossPromo.record(oncrosspromoroaderesponse);
+				}
+				function oncrosspromoroaderesponse(response){
+					console.log("oncrosspromoroaderesponse: "+response);
+					if(gameInstance){
+						gameInstance.SendMessage("NutakuTools","OnCrossPromoRecordResponse",response);
+					}
+				}
 
 			    function PrintResult(data)
 			    {
 			    	console.log("data: "+data);
+			    }
+
+			    function GadgetCrossPromotionTaskArchieve(){
+			    	 crossPromo.achieveTask("AbqlqKkkPk",console.log);
+			    }
+			    function GadgetCrossPromotionTaskConfirm(){
+					crossPromo.confirmTask("rFQjs3aTU8",console.log);
 			    }
 
 			    function OpenGuestForm()
