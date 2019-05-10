@@ -48,8 +48,8 @@ var LibraryJsCallCsTest = {
 			});
 			    
 	  	},
-	  	OpenCrossPromotion: function () {
-	  		console.log("OpenCrossPromotion");
+	  	OpenCrossPromotionBanner: function () {
+	  		console.log("OpenCrossPromotionBanner");
 	    	crossPromo.showBannerModal(function(response){
 	    		console.log("OnOpenCrossPromotionComplete: "+response);
 			    SendMessage("NutakuTools","OnOpenCrossPromotionComplete");

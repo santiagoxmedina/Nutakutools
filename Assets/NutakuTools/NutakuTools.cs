@@ -5,15 +5,15 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NutakuTools : MonoBehaviour {
-
+public class NutakuTools : Singleton<NutakuTools> {
+    public const string KEY_BANNER_CLIC_TIME = "nutakucrosspromobannertime";
 #if UNITY_WEBGL
     [DllImport("__Internal")]
     private static extern void CheckGuestPlayer (Action<string> action);
     [DllImport("__Internal")]
     private static extern void OpenGuestPlayerFrom ();
     [DllImport("__Internal")]
-    private static extern void OpenCrossPromotion ();
+    private static extern void OpenCrossPromotionBanner ();
     [DllImport("__Internal")]
     private static extern void CrossPromotionTaskArchieve ();
     [DllImport("__Internal")]
@@ -27,14 +27,103 @@ public class NutakuTools : MonoBehaviour {
     public Action<int> onSuportToolStateChange;
     public const int SUPPORT_TOOL_OPEN = 1;
     public NutakuToolRecord nutakuToolRecord;
+    private bool _canCheckCrossPromo;
+    //No tiene rewards
+    public const int NO_REWARDS = 0;
+    //Have rewards pending
+    public const int HAVE_REWARDS = 1;
+    //Adding rewards
+    public const int ADDING_REWARDS = 2;
+    //Rewards already give.
+    public const int REWARDS_WERE_ADDED = 3;
+    //Confirm rewards 
+    public const int CONFIRMING_REWARDS = 4;
+    //Confirm request success
+    public const int REWARDS_CONFIRMATION_COMPLETED = 5;
+    public int rewardState;
+
+    public const int NOT_RECORD = 0;
+    public const int RECORD_UPDATE = 1;
+    public const int RECORD_COMPLETE =2;
+    public int recordState = 0;
+
+    private bool activeCrossPromotionBanner;
 
     private void Start ()
     {
+        rewardState = NO_REWARDS;
+        recordState = NOT_RECORD;
         OnSuportToolsState(0);
 
 #if UNITY_WEBGL  && !UNITY_EDITOR
         OnNutakuToolStart();
 #endif
+    }
+
+    private void Update ()
+    {
+        if(recordState == RECORD_UPDATE)
+        {
+            recordState = RECORD_COMPLETE;
+            CheckRewardsFromRecord();
+        }else if (recordState == RECORD_COMPLETE)
+        {
+            if (rewardState == NO_REWARDS)
+            {
+                if (activeCrossPromotionBanner)
+                {
+                    CheckCrossPromotionBanner();
+                }
+            }else if (rewardState == REWARDS_WERE_ADDED)
+            {
+                rewardState = CONFIRMING_REWARDS;
+                CrossPromotionTaskConfirm();
+            }
+            else if (rewardState == REWARDS_CONFIRMATION_COMPLETED)
+            {
+                rewardState = NO_REWARDS;
+                OpenRewardsBanner();
+            }
+        }
+    }
+
+    public void OnActivateCrossPromotionBanner ()
+    {
+        activeCrossPromotionBanner = true;
+    }
+
+    /// <summary>
+    /// Open rewards banner
+    /// </summary>
+    private void OpenRewardsBanner ()
+    {
+        OnOpenCrossPromotionBanner();
+    }
+
+    /// <summary>
+    /// Called when cross-promo recrods is completed.
+    /// </summary>
+    /// <param name="response"></param>
+    public void OnCrossPromoRecordResponse (string response)
+    {
+        nutakuToolRecord = JsonUtility.FromJson<NutakuToolRecord>(response);
+        Debug.Log(nutakuToolRecord.ToString());
+        if (nutakuToolRecord != null)
+        {
+            if (nutakuToolRecord.status == 200)
+            {
+                recordState = RECORD_UPDATE;
+            }
+            else
+            {
+                recordState = NOT_RECORD;
+            }
+        }
+        else
+        {
+            recordState = NOT_RECORD;
+        }
+                
     }
 
     /// <summary>
@@ -46,7 +135,7 @@ public class NutakuTools : MonoBehaviour {
     {
         m_action += action;
         m_actionError += actionError;
-        #if UNITY_WEBGL
+#if UNITY_WEBGL 
         CheckGuestPlayer(Callback);
         #endif
     }
@@ -64,16 +153,24 @@ public class NutakuTools : MonoBehaviour {
     /// <summary>
     /// Open Cross promotion banner
     /// </summary>
-    public void OnOpenCrossPromotion()
+    public void OnOpenCrossPromotionBanner()
     {
-#if UNITY_WEBGL
-        OpenCrossPromotion();
+#if UNITY_WEBGL 
+        OpenCrossPromotionBanner();
 #endif
     }
 
+    /// <summary>
+    /// Cross promotion banner completed
+    /// </summary>
     private void OnOpenCrossPromotionComplete ()
     {
         Debug.Log("OnOpenCrossPromotionComplete");
+        if(rewardState == NO_REWARDS)
+        {
+            PlayerPrefs.SetString(KEY_BANNER_CLIC_TIME, System.DateTime.Now.ToBinary().ToString());
+            Debug.Log("Saved cross promotion baner time.");
+        }
     }
 
     /// <summary>
@@ -95,13 +192,65 @@ public class NutakuTools : MonoBehaviour {
 #endif
     }
     /// <summary>
-    /// Called when cross-promo recrods is completed.
+    /// Rewards Confirmation taks
     /// </summary>
     /// <param name="response"></param>
-    public void OnCrossPromoRecordResponse(string response)
+    public void OnCrossPromotionTaskConfirmResponse(string response)
     {
-        nutakuToolRecord = JsonUtility.FromJson<NutakuToolRecord>(response);
-        Debug.Log(nutakuToolRecord.ToString());
+        NutakuToolRecord nutakuToolRecordConfirmResponse = JsonUtility.FromJson<NutakuToolRecord>(response);
+        Debug.Log(nutakuToolRecordConfirmResponse.ToString());
+        if(nutakuToolRecordConfirmResponse.status == 200)
+        {
+            rewardState = REWARDS_CONFIRMATION_COMPLETED;
+        }
+        else
+        {
+            rewardState = NO_REWARDS;
+        }
+        
+    }
+
+    /// <summary>
+    /// Check the rewards from records task
+    /// </summary>
+    private void CheckRewardsFromRecord ()
+    {
+        if (nutakuToolRecord!=null)
+        {
+            if(nutakuToolRecord.data != null )
+            {
+                if(nutakuToolRecord.data.tasks != null )
+                {
+                    if (nutakuToolRecord.data.tasks.Length > 0)
+                    {
+                        rewardState = HAVE_REWARDS;
+                    }
+                }
+            }
+        }
+    }
+
+    private void CheckCrossPromotionBanner ()
+    {
+        activeCrossPromotionBanner = false;
+        string currentKeyValue = PlayerPrefs.GetString(KEY_BANNER_CLIC_TIME, string.Empty);
+        if (!string.IsNullOrEmpty(currentKeyValue))
+        {
+            long temp = Convert.ToInt64(currentKeyValue);
+            DateTime oldDate = DateTime.FromBinary(temp);
+            TimeSpan difference = System.DateTime.Now.Subtract(oldDate);
+            Debug.LogFormat("Cross promotion wait time {0} ", difference.Hours);
+            if (difference.Hours >= 24)
+            {
+                PlayerPrefs.SetString(KEY_BANNER_CLIC_TIME, string.Empty);
+                
+                OnOpenCrossPromotionBanner();
+            }
+        }
+        else
+        {
+            OnOpenCrossPromotionBanner();
+        }
     }
 
     #region test
@@ -159,7 +308,12 @@ public class NutakuTools : MonoBehaviour {
             onSuportToolStateChange(active);
         }
     }
-
+    /// <summary>
+    /// Get tostring from array.
+    /// </summary>
+    /// <typeparam name="A"> Array type</typeparam>
+    /// <param name="arrayToPrint"> Array to print</param>
+    /// <returns> tostring from array</returns>
     public static string GetToStringsArray<A> (A[] arrayToPrint)
     {
         if (arrayToPrint == null)

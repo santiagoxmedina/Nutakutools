@@ -53,11 +53,9 @@
 				    gameInstance.logo.style.display = gameInstance.progress.style.display = "none";
 				}
 
-
-				
 				function ongamestart(){
-					console.log("oncrosspromorecord: 8EPvPPz1VSaZ_Xp");
-					crossPromo.init('8EPvPPz1VSaZ_Xp');
+					console.log("oncrosspromorecord: z7nPNtG9NIY8yd6");
+					crossPromo.init('z7nPNtG9NIY8yd6');
 					crossPromo.record(oncrosspromoroaderesponse);
 				}
 				function oncrosspromoroaderesponse(response){
@@ -73,12 +71,17 @@
 			    }
 
 			    function GadgetCrossPromotionTaskArchieve(){
-			    	 crossPromo.achieveTask("AbqlqKkkPk",console.log);
+			    	 crossPromo.achieveTask("rFQjs3aTU8",console.log);
 			    }
 			    function GadgetCrossPromotionTaskConfirm(){
-					crossPromo.confirmTask("rFQjs3aTU8",console.log);
+					crossPromo.confirmTask("AbqlqKkkPk",oncrosspromotaskconfirmedresponse);
 			    }
-
+			    function oncrosspromotaskconfirmedresponse(response){
+					console.log("oncrosspromotaskconfirmedresponse: "+response);
+					if(gameInstance){
+						gameInstance.SendMessage("NutakuTools","OnCrossPromotionTaskConfirmResponse",response);
+					}
+				}
 			    function OpenGuestForm()
 			    {
 			    	var params = {};
