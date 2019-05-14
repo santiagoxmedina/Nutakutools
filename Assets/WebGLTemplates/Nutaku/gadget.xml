@@ -82,58 +82,6 @@
 						gameInstance.SendMessage("NutakuTools","OnCrossPromotionTaskConfirmResponse",response);
 					}
 				}
-			    function OpenGuestForm()
-			    {
-			    	var params = {};
-					params[nutaku.GuestRequestFields.VERSION] = 1;
-
-				    var newGuestSignUpResult = opensocial.newGuestSignUp(params);
-				    opensocial.requestGuestSignUp(newGuestSignUpResult, function(response) {
-					    // Callback processing is performed once the user action on the signup modal is completed.   
-					    // However, if the user selects "Sign Up", the user will be directed to the signup page, thus the callback processing is not executed.
-					    if (!response.hadError()) {
-					        var responseCode = newGuestSignUpResult.getField(nutaku.Guest.Field.RESPONSE_CODE);
-					        console.log("responseCode:"+responseCode);
-					    }
-					    else {
-					    //error handling
-					    console.log("OpenGuestForm Error:"+JSON.stringify(response));
-					    }
-					});
-			    }
-
-			    function GetUserInformation(action)
-			    {
-				    var params = {};
-					params[opensocial.DataRequest.PeopleRequestFields.PROFILE_DETAILS] = [nutaku.Person.Field.GRADE];
-					var req = opensocial.newDataRequest();
-					req.add(req.newFetchPersonRequest(opensocial.IdSpec.PersonId.VIEWER, params), "viewer");
-					req.send(function(response) {
-					    if (response.hadError()) {
-					        console.log("GetUserInformation Error:"+JSON.stringify(response));
-					        if(action){
-					           CallBack(action,{"Type":"Error"});
-					         }
-					    } else {
-					        var item = response.get("viewer");
-					        if (item.hadError()) {
-					            console.log("GetUserInformation Error:"+JSON.stringify(response));
-					            if(action){
-					            	CallBack(action,{"Type":"Error"});
-					            }
-					        } else {
-					            var viewer = item.getData();
-					            CallBack(action,{"Type":"Success","GRADE":viewer.getField(nutaku.Person.Field.GRADE)});
-					        }
-					    }
-					});
-			    }
-
-			    function GetUserInformationCallBackTest(args)
-			    {
-			    	console.log("Result: "+JSON.stringify(args));
-			    }
-			   // GetUserInformation(GetUserInformationCallBackTest);
 			</script>
 			<body style="min-height: 1280px">
 				<div style="width:1280px; margin: 14px auto 0 auto; position: relative;">

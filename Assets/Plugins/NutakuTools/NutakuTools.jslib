@@ -49,19 +49,42 @@ var LibraryJsCallCsTest = {
 			    
 	  	},
 	  	OpenCrossPromotionBanner: function () {
-	  		console.log("OpenCrossPromotionBanner");
 	    	crossPromo.showBannerModal(function(response){
-	    		console.log("OnOpenCrossPromotionComplete: "+response);
-			    SendMessage("NutakuTools","OnOpenCrossPromotionComplete");
+			    SendMessage("NutakuTools","OnOpenCrossPromotionShowBannerModalComplete");
 	    	});
 	  	},
 	  	CrossPromotionTaskArchieve: function(){
-	  		GadgetCrossPromotionTaskArchieve();
+	  		crossPromo.achieveTask(archievetaskkey,function(response){
+	  			SendMessage("NutakuTools","OnCrossPromotionTaskArchieveResponse",response);
+			});
 	  	},
-	  	CrossPromotionTaskConfirm: function(){
-	  		GadgetCrossPromotionTaskConfirm();
+	  	CrossPromotionTaskConfirm: function(task_key){
+	  		var ctask_key = Pointer_stringify(task_key);
+	  		console.log("Confirm task_id "+ctask_key);
+	  		crossPromo.confirmTask(ctask_key,function(response){
+	  			SendMessage("NutakuTools","OnCrossPromotionTaskConfirmResponse",response);
+			});
 	  	},OnNutakuToolStart: function(){
-	  		ongamestart();
+	  		var req = opensocial.newDataRequest();
+			req.add(req.newFetchPersonRequest(opensocial.IdSpec.PersonId.VIEWER), "viewer");
+			req.send(function(response) {
+				if (response.hadError()) {
+					// error
+					console.log('newDataRequest Error:'+JSON.stringify(response));
+				} else {
+					var item = response.get("viewer");
+					if (item.hadError()) {
+						// error
+						console.log('newDataRequest Error:'+JSON.stringify(response));
+					} else {
+						var viewer = item.getData();
+						var id = viewer.getId();
+						SendMessage('NutakuTools','SetUserId', id);
+					}
+				}
+			});
+	  		crossPromo.init(tokenxpromo);
+			crossPromo.record(function(response){SendMessage("NutakuTools","OnCrossPromoRecordResponse",response);});
 	  	}
 };
 autoAddDeps(LibraryJsCallCsTest, '$JsCallCsTest');

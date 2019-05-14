@@ -22,23 +22,12 @@ public class TestNutakuToolsRewards : MonoBehaviour {
     private IEnumerator AddRewards ()
     {
         yield return new WaitForSeconds(1);
-        if (NutakuTools.Instance.nutakuToolRecord != null)
+        NutakuToolRecordTasks tasks = NutakuTools.Instance.GetFirstTaskUnreceived();
+        if (tasks != null)
         {
-            if (NutakuTools.Instance.nutakuToolRecord.data != null)
-            {
-                if (NutakuTools.Instance.nutakuToolRecord.data.tasks != null)
-                {
-                    for (int i = 0; i < NutakuTools.Instance.nutakuToolRecord.data.tasks.Length; i++)
-                    {
-                        NutakuToolRecordTasks tasks = NutakuTools.Instance.nutakuToolRecord.data.tasks[i];
-                        ProcessTask(tasks);
-                       
-                    }
-                }
-            }
+            ProcessTask(tasks);
+            NutakuTools.Instance.SetFirstTaskReward();
         }
-        yield return new WaitForSeconds(1);
-        NutakuTools.Instance.rewardState = NutakuTools.REWARDS_WERE_ADDED;
     }
 
     private void ProcessTask (NutakuToolRecordTasks tasks)
